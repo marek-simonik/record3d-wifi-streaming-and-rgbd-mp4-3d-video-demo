@@ -1,6 +1,6 @@
 # [Record3D](https://record3d.app)'s Wi-Fi Streaming & RGBD mp4 3D Video Demo
 
-This is a demo project for the [Record3D](https://record3d.app) iOS app. [Click here to test it](https://marek-simonik.github.io/). 
+This is a demo project for the [Record3D](https://record3d.app) iOS app. [Click here to test it](https://marek-simonik.github.io/record3d-wifi-streaming-and-rgbd-mp4-3d-video-demo/). 
 
 This demo will allow you to:
  
