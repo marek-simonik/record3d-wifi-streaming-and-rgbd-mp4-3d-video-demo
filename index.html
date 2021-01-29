@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <title>Record3D – RGBD Video in 3D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+<body class="d-flex h-100 text-center text-white bg-dark">
+    <div id="landing-page" class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+        <header class="mb-auto">
+            <div>
+                <h1 class="float-md-start mb-0"><a href="https://record3d.app/" class="text-white">Record3D</a></h1>
+            </div>
+        </header>
+
+        <main class="px-3">
+            <h1>Wi-Fi Streaming & RGBD mp4 3D&nbsp;Video Demo</h1>
+            <p class="lead">All processing happens locally. The video is NOT uploaded to any servers.</p>
+            <p class="lead">
+                <form id="form-start-streaming">
+                    <div class="form-group">
+                        <label>To start live streaming 3D Video, enter your iPhone's / iPad's local Wi-Fi address.</label>
+                        <div class="input-group mb-3">
+                            <input type="text" id="input-device-address" class="form-control" placeholder="Enter your iPhone/iPad's address" aria-describedby="button-stream">
+                            <div class="input-group-append">
+                                <input class="btn  btn-primary" type="submit" id="button-stream" value="Start Wi-Fi Streaming">
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">
+                            Address of your iPhone / iPad is displayed in Record3D after you start streaming.
+                            <br />
+                            Examples of an address: "192.168.1.100" or "myiPhone.local".
+                        </small>
+                    </div>
+                </form>
+            </p>
+            <p class="lead" style="font-size: 2.25rem;">
+                <strong>OR</strong>
+            </p>
+            <p class="lead">
+                <form id="form-offline-mp4-playback">
+                    <div class="form-group files color">
+                        <label>Drag'n'drop a RGBD mp4 video exported via <a href="https://record3d.app/">Record3D</a> to play it in 3D.</label>
+                        <input type="file" class="form-control" id="input-mp4-file">
+                    </div>
+                    <small class="form-text text-muted">
+                        Want to see an example? You can download <a href="https://mega.nz/file/0mg0XQSC#K0XS1GoqV-qRnJ2VFwVF7UbeVakCmc74kD6xpn_Bcek" target="_blank">this sample RGBD mp4 video</a> and drop it here.
+                    </small>
+                </form>
+            </p>
+        </main>
+
+        <footer class="mt-auto text-white-50">
+            <p>Wi-Fi Streaming and RGBD mp4 Video export requires a paid Extension Pack in <a href="https://record3d.app/">Record3D</a>. More info <a href="https://record3d.app/features">here</a>. You can contact me at <a href="mailto:support@record3d.app">support@record3d.app</a></p>
+        </footer>
+    </div>
+
+    <script src="js/three.min.js"></script>
+    <script src="js/orbit-controls.js"></script>
+
+    <script src="js/app/video-sources/SignalingClient.js"></script>
+    <script src="js/app/video-sources/OfflineVideoSource.js"></script>
+    <script src="js/app/video-sources/WiFiStreamedVideoSource.js"></script>
+    <script src="js/app/pointcloud-material.js"></script>
+    <script src="js/app/Record3DScene.js"></script>
+    <script src="js/app/Record3DPointCloud.js"></script>
+
+    <script>
+        // Setup Wi-Fi Streaming
+        let streamingForm = document.getElementById('form-start-streaming');
+        streamingForm.onsubmit = (e) => {
+            e.preventDefault();
+
+            let peerAddress = document.getElementById("input-device-address").value;
+            if ( !peerAddress.startsWith('http://') ) {
+                peerAddress = 'http://' + peerAddress;
+            }
+
+            document.getElementById('landing-page').remove();
+
+            let wifiVideo = new WiFiStreamedVideoSource(peerAddress);
+            wifiVideo.connect();
+
+            // Setup the scene
+            let scene = new Record3DScene(60, 1e-4, 1e5);
+            scene.runloop();
+            scene.addPointCloud(new Record3DPointCloud(wifiVideo));
+        };
+
+        // Setup offline video loading
+        let offlinePlaybackForm = document.getElementById('input-mp4-file');
+        offlinePlaybackForm.onchange = (e) => {
+            e.preventDefault();
+            let mp4File = document.getElementById('input-mp4-file').files[0];
+            onOfflineVideoPassed(mp4File);
+        };
+
+        offlinePlaybackForm.ondrop = (e) => {
+            e.preventDefault();
+            let mp4File = e.dataTransfer.files[0];
+            onOfflineVideoPassed(mp4File);
+        };
+
+        function onOfflineVideoPassed(mp4File) {
+            document.getElementById('landing-page').remove();
+
+            // Setup a Wi-Fi streamed video
+            let offlineVideo = new OfflineVideoSource();
+            offlineVideo.load(mp4File);
+
+            // Setup the scene
+            let scene = new Record3DScene(60, 1e-4, 1e5);
+            scene.runloop();
+            scene.addPointCloud(new Record3DPointCloud(offlineVideo));
+        }
+    </script>
+</body>
+</html>

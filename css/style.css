@@ -1,0 +1,105 @@
+body {
+    position: relative;
+    text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
+    box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
+}
+
+#play-btn-container
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+canvas
+{
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#toggle-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+
+/*https://getbootstrap.com/docs/4.0/examples/cover/*/
+/* Custom default button */
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus {
+    color: #333;
+    text-shadow: none; /* Prevent inheritance from `body` */
+}
+.cover-container {
+    max-width: 42em;
+}
+.nav-masthead .nav-link {
+    padding: .25rem 0;
+    font-weight: 700;
+    color: rgba(255, 255, 255, .5);
+    background-color: transparent;
+    border-bottom: .25rem solid transparent;
+}
+.nav-masthead .nav-link:hover,
+.nav-masthead .nav-link:focus {
+    border-bottom-color: rgba(255, 255, 255, .25);
+}
+.nav-masthead .nav-link + .nav-link {
+    margin-left: 1rem;
+}
+.nav-masthead .active {
+    color: #fff;
+    border-bottom-color: #fff;
+}
+
+
+/*https://bootsnipp.com/snippets/DOXy4*/
+.files input {
+    outline: 2px dashed #92b0b3;
+    outline-offset: -10px;
+    -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+    transition: outline-offset .15s ease-in-out, background-color .15s linear;
+    padding: 120px 0px 85px 35%;
+    text-align: center !important;
+    margin: 0;
+    width: 100% !important;
+}
+.files input:focus{     outline: 2px dashed #92b0b3;  outline-offset: -10px;
+    -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+    transition: outline-offset .15s ease-in-out, background-color .15s linear; border:1px solid #92b0b3;
+}
+.files{ position:relative}
+.files:after {  pointer-events: none;
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 50px;
+    right: 0;
+    height: 56px;
+    content: "";
+    background-image: url(data:image/png;base64,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);
+    display: block;
+    margin: 0 auto;
+    background-size: 100%;
+    background-repeat: no-repeat;
+}
+.color input{ background-color:white;}
+.files:before {
+    position: absolute;
+    bottom: 10px;
+    left: 0;  pointer-events: none;
+    width: 100%;
+    right: 0;
+    height: 57px;
+    content: " or drag it here. ";
+    display: block;
+    margin: 0 auto;
+    color: rgb(0, 123, 255);
+    font-weight: 600;
+    text-transform: capitalize;
+    text-align: center;
+}
