@@ -1,6 +1,8 @@
 # [Record3D](https://record3d.app)'s Wi-Fi Streaming & RGBD mp4 3D Video Demo
 
-This is a demo project for the [Record3D](https://record3d.app) iOS app. [Click here to test it](https://marek-simonik.github.io/record3d-wifi-streaming-and-rgbd-mp4-3d-video-demo/). 
+This is a demo project for the [Record3D](https://record3d.app) iOS app. You can test the demo at this address: [http://record3d.xyz](http://record3d.xyz).
+
+To preview the demo, use Safari or Google Chrome, **it does not work in Firefox**. Due to security restrictions, the demo must be run on a `http://` website (i.e. not on `https://`). You can also try the demo by downloading this repository and opening the `index.html` file in your browser.
 
 This demo will allow you to:
  
