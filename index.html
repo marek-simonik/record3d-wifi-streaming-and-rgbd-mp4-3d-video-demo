@@ -79,6 +79,12 @@
         streamingForm.onsubmit = (e) => {
             e.preventDefault();
 
+            let isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+            if (isFirefox)
+            {
+                alert("Use Safari or Google Chrome. The Wi-Fi Streaming demo won't work with Firefox. However, you can still use Firefox for mp4 RGBD video playback.");
+            }
+
             let peerAddress = document.getElementById("input-device-address").value;
             if ( !peerAddress.startsWith('http://') ) {
                 peerAddress = 'http://' + peerAddress;

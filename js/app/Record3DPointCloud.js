@@ -70,6 +70,7 @@ class Record3DPointCloud
         geometry.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(this.buffIndices), 1));
 
         this.pointCloud = new THREE.Points(geometry, this.material);
+        this.pointCloud.frustumCulled = false;
     }
 
     toggle()
