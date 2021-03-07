@@ -4,10 +4,13 @@ function getPointCloudShaderMaterial()
         attribute float vertexIdx;
         
         varying float vVertexIdx;
+        varying vec2 vPtPos;
         
         uniform ivec2 texSize;
         uniform sampler2D texImg;
         uniform vec4 iK;
+        uniform float scale;
+        uniform float ptSize;
         
         // Filtering constants
         const int filterSize = 1;
@@ -82,7 +85,7 @@ function getPointCloudShaderMaterial()
             
             float currDepth = getPixelDepth(pt);
 
-            vec3 ptPos = vec3(
+            vec3 ptPos = scale * vec3(
                 (iK.x * float(ptX) + iK.z) * currDepth,
                 (iK.y * float(ptY) + iK.w) * currDepth,
                 -currDepth
@@ -91,20 +94,24 @@ function getPointCloudShaderMaterial()
             vec4 mvPos = modelViewMatrix * vec4(ptPos, 1.0);
             gl_Position = projectionMatrix * mvPos;
             
+            vPtPos = vec2( float(ptX), float(ptY) );
             vVertexIdx = vertexIdx;
-            gl_PointSize = 2.3 / -mvPos.z;
+            gl_PointSize = ptSize;
         }
     `;
 
     const fragShaderSrc = `
         varying float vVertexIdx;
+        varying vec2 vPtPos;
 
         uniform ivec2 texSize;
         uniform sampler2D texImg;
         
         void main()
         {
-            ivec2 frameSize = ivec2(texSize.x / 2, texSize.y);
+            vec2 frameSizeF = vec2(texSize.x / 2, texSize.y);
+            ivec2 frameSize = ivec2(frameSizeF);
+            
             int vertIdx = int(vVertexIdx);
             int actualNumPts = frameSize.x * frameSize.y;
             if ( vertIdx >= actualNumPts )
@@ -112,9 +119,7 @@ function getPointCloudShaderMaterial()
                 discard;
             }
             
-            int ptY = vertIdx / frameSize.x;
-            int ptX = vertIdx - ptY * frameSize.x;
-            vec2 lookupPt = ( vec2(ptX + frameSize.x, ptY) + vec2(0.5) ) / vec2(texSize); 
+            vec2 lookupPt = ( vec2(vPtPos.x + frameSizeF.x, vPtPos.y) + vec2(0.5) ) / vec2(texSize); 
             vec3 currColor = texture2D(texImg, lookupPt).rgb;
         
             gl_FragColor = vec4(currColor, 1.0);
@@ -125,7 +130,9 @@ function getPointCloudShaderMaterial()
         uniforms: {
             texImg: { type: 't', value: new THREE.Texture() },
             texSize: { type: 'i2', value: [0, 0] },
-            iK: { type: 'f4', value: [0, 0, 0, 0] }
+            iK: { type: 'f4', value: [0, 0, 0, 0] },
+            scale: { type: 'f', value: 1.0 },
+            ptSize: { type: 'f', value: 1.0 },
         },
         side: THREE.DoubleSide,
         transparent: false,

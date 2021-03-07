@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/style.css" />
 
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 
 <body class="d-flex h-100 text-center text-white bg-dark">
@@ -63,27 +63,23 @@
         </footer>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js "></script>
     <script src="js/three.min.js"></script>
     <script src="js/orbit-controls.js"></script>
+    <script src="js/camera-controls.js"></script>
 
     <script src="js/app/video-sources/SignalingClient.js"></script>
     <script src="js/app/video-sources/OfflineVideoSource.js"></script>
     <script src="js/app/video-sources/WiFiStreamedVideoSource.js"></script>
     <script src="js/app/pointcloud-material.js"></script>
     <script src="js/app/Record3DScene.js"></script>
-    <script src="js/app/Record3DPointCloud.js"></script>
+    <script src="js/app/Record3DVideo.js"></script>
 
     <script>
         // Setup Wi-Fi Streaming
         let streamingForm = document.getElementById('form-start-streaming');
         streamingForm.onsubmit = (e) => {
             e.preventDefault();
-
-            let isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-            if (isFirefox)
-            {
-                alert("Use Safari or Google Chrome. The Wi-Fi Streaming demo won't work with Firefox. However, you can still use Firefox for mp4 RGBD video playback.");
-            }
 
             let peerAddress = document.getElementById("input-device-address").value;
             if ( !peerAddress.startsWith('http://') ) {
@@ -98,7 +94,7 @@
             // Setup the scene
             let scene = new Record3DScene(60, 1e-4, 1e5);
             scene.runloop();
-            scene.addPointCloud(new Record3DPointCloud(wifiVideo));
+            scene.addVideo(new Record3DVideo(wifiVideo));
         };
 
         // Setup offline video loading
@@ -123,9 +119,9 @@
             offlineVideo.load(mp4File);
 
             // Setup the scene
-            let scene = new Record3DScene(60, 1e-4, 1e5);
+            let scene = new Record3DScene(60, 1e-3, 100);
             scene.runloop();
-            scene.addPointCloud(new Record3DPointCloud(offlineVideo));
+            scene.addVideo(new Record3DVideo(offlineVideo));
         }
     </script>
 </body>

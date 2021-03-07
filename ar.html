@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <title>Record3D – RGBD Video in 3D</title>
+    <meta content='width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+        body {
+            position: unset;
+        }
+        html, body {
+            overflow: hidden;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.2.0/aframe.min.js"></script>
+    <script src="js/aframe-ar.js"></script>
+    <script src="js/orbit-controls.js"></script>
+
+    <script src="js/app/video-sources/SignalingClient.js"></script>
+    <script src="js/app/video-sources/OfflineVideoSource.js"></script>
+    <script src="js/app/video-sources/WiFiStreamedVideoSource.js"></script>
+    <script src="js/app/pointcloud-material.js"></script>
+    <script src="js/app/Record3DScene.js"></script>
+    <script src="js/app/Record3DVideo.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js "></script>
+</head>
+
+<body class="d-flex h-100 text-center text-white bg-dark" style="margin-left: 0px !important;">
+<div id="landing-page" class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <header class="mb-auto">
+        <div>
+            <h1 class="float-md-start mb-0"><a href="https://record3d.app/" class="text-white">Record3D AR Demo</a></h1>
+        </div>
+    </header>
+
+    <main class="px-3">
+        <p class="lead">
+        <form id="form-offline-mp4-playback">
+            <div class="form-group files color">
+                <label>Drag'n'drop a RGBD mp4 video exported via <a href="https://record3d.app/">Record3D</a> to play it in 3D.</label>
+                <input type="file" class="form-control" id="input-mp4-file">
+            </div>
+            <small class="form-text text-muted">
+                Want to see an example? You can download <a href="https://mega.nz/file/0mg0XQSC#K0XS1GoqV-qRnJ2VFwVF7UbeVakCmc74kD6xpn_Bcek" target="_blank">this sample RGBD mp4 video</a> and drop it here.
+            </small>
+        </form>
+        </p>
+    </main>
+
+    <footer class="mt-auto text-white-50">
+        <p>Wi-Fi Streaming and RGBD mp4 Video export requires a paid Extension Pack in <a href="https://record3d.app/">Record3D</a>. More info <a href="https://record3d.app/features">here</a>. You can contact me at <a href="mailto:support@record3d.app">support@record3d.app</a></p>
+    </footer>
+</div>
+
+<script>
+    // Setup offline video loading
+    let offlinePlaybackForm = document.getElementById('input-mp4-file');
+    offlinePlaybackForm.onchange = (e) => {
+        e.preventDefault();
+        let mp4File = document.getElementById('input-mp4-file').files[0];
+        onOfflineVideoPassed(mp4File);
+    };
+
+    offlinePlaybackForm.ondrop = (e) => {
+        e.preventDefault();
+        let mp4File = e.dataTransfer.files[0];
+        onOfflineVideoPassed(mp4File);
+    };
+
+    function onOfflineVideoPassed(mp4File) {
+        document.getElementById('landing-page').remove();
+
+        // The scene tag, specifies requirement of best tracking method
+        let elScene = document.createElement('a-scene');
+        elScene.setAttribute('vr-mode-ui', 'enabled: false;');
+        elScene.setAttribute('renderer', 'logarithmicDepthBuffer: true;');
+        elScene.setAttribute('embedded', true);
+        elScene.setAttribute('arjs', 'trackingMethod: best; sourceType: webcam;debugUIEnabled: false;');
+
+        // Marker tag
+        let elMarker = document.createElement('a-marker-camera');
+        elMarker.setAttribute('preset', 'hiro');
+        elScene.appendChild(elMarker);
+
+        // <a-entity> — this serves as entity holding the point cloud
+        let elNull = document.createElement('a-entity');
+        elMarker.appendChild(elNull);
+        document.body.appendChild(elScene);
+
+        // Setup a Wi-Fi streamed video
+        let offlineVideoSource = new OfflineVideoSource();
+        offlineVideoSource.load(mp4File);
+        let offlineVideo = new Record3DVideo(offlineVideoSource);
+        let ptCloudObj = offlineVideo.videoObject;
+        elNull.object3D.add(ptCloudObj);
+
+        /**
+         * Add UI
+         */
+        let options = {
+            modelScale: 1.0,
+            modelPointSize: 1.0,
+            shiftX: 0.0,
+            shiftY: 0.0,
+            shiftZ: 0.0,
+            rotate: () => {
+                ptCloudObj.rotation.x = ptCloudObj.rotation.x != 0.0 ? 0.0 : -Math.PI / 2.0;
+            },
+            toggleSound: () => {
+                offlineVideo.toggleSound();
+            },
+            toggleVideo: () => {
+                offlineVideo.toggle();
+            },
+            toggleMeshPoints: () => {
+                let newRenderingMode = offlineVideo.renderingMode === Record3DVideoRenderingMode.MESH ?
+                    Record3DVideoRenderingMode.POINTS : Record3DVideoRenderingMode.MESH;
+                offlineVideo.switchRenderingTo(newRenderingMode);
+            }
+
+        };
+        let gui = new dat.gui.GUI();
+        gui.add(options, 'modelScale').min(1).max(20).step(0.1)
+            .onChange(() => offlineVideo.material.uniforms.scale.value = options.modelScale);
+
+        gui.add(options, 'modelPointSize').min(1).max(20).step(0.1)
+            .onChange(() => offlineVideo.material.uniforms.ptSize.value = options.modelPointSize );
+
+        gui.add(options, 'shiftX').min(-5).max(5).step(0.01)
+            .onChange(() => ptCloudObj.position.x = options.shiftX );
+
+        gui.add(options, 'shiftY').min(-5).max(5).step(0.01)
+            .onChange(() => ptCloudObj.position.y = options.shiftY );
+
+        gui.add(options, 'shiftZ').min(-5).max(5).step(0.01)
+            .onChange(() => ptCloudObj.position.z = options.shiftZ );
+
+        gui.add(options, 'toggleSound').name('Mute/Unmute');
+        gui.add(options, 'toggleVideo').name('Play/Pause');
+        gui.add(options, 'toggleMeshPoints').name('Points/mesh');
+        gui.add(options, 'rotate').name('Rotate 90°');
+    }
+</script>
+</body>
+</html>

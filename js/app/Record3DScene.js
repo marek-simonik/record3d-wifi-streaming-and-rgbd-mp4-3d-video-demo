@@ -2,6 +2,7 @@ class Record3DScene
 {
     constructor(fov, near, far)
     {
+        let self = this;
         this.mainScene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer();
 
@@ -22,35 +23,72 @@ class Record3DScene
         // Init scene
         this.renderer.setClearColor(new THREE.Color(0x343a40));
         this.renderer.setPixelRatio(window.devicePixelRatio);
-
         document.body.appendChild(this.renderer.domElement);
-
-        // Add toggle button
-        let self = this;
-        let toggleButton = document.createElement('button');
-        toggleButton.textContent = "Play/Pause";
-        toggleButton.id = 'toggle-button';
-        toggleButton.onclick = e => {
-            for (let video of self.pointClouds)
-                video.toggle();
-        };
-        document.body.appendChild(toggleButton);
 
         // Setup resizing
         window.addEventListener( 'resize', (e) => this.onWindowResize(e), false );
         this.onWindowResize(null);
+
+        // Setup UI
+        this.options = {
+            modelScale: 1.0,
+            modelPointSize: 1.0,
+            toggleSound: () => {
+                for (let video of self.pointClouds)
+                    video.toggleSound();
+            },
+            toggleVideo: () => {
+                for (let video of self.pointClouds)
+                    video.toggle();
+            },
+            toggleMeshPoints: () => {
+                for (let video of self.pointClouds) {
+                    let newRenderingMode = video.renderingMode === Record3DVideoRenderingMode.MESH ?
+                                                Record3DVideoRenderingMode.POINTS : Record3DVideoRenderingMode.MESH;
+                    video.switchRenderingTo(newRenderingMode);
+                }
+            }
+        };
+        let gui = new dat.gui.GUI();
+        gui.add(this.options, 'modelScale').min(1).max(20).step(0.1)
+            .onChange(() => {
+                for (let ptCloud of self.pointClouds)
+                {
+                    ptCloud.setScale(self.options.modelScale);
+                }
+            });
+
+        gui.add(this.options, 'modelPointSize').min(0.1).max(20).step(0.1)
+            .onChange(() => {
+                for (let ptCloud of self.pointClouds)
+                {
+                    ptCloud.setPointSize(self.options.modelPointSize);
+                }
+            });
+
+        gui.add(this.options, 'toggleSound').name('Mute/Unmute');
+        gui.add(this.options, 'toggleVideo').name('Play/Pause');
+        gui.add(this.options, 'toggleMeshPoints').name('Render points/mesh');
     }
 
-    addPointCloud(r3dPointCloud)
+    addVideo(r3dVideo)
     {
-        this.pointClouds.push(r3dPointCloud);
-        this.mainScene.add(r3dPointCloud.pointCloud);
+        this.pointClouds.push(r3dVideo);
+        this.mainScene.add(r3dVideo.videoObject);
     }
 
     runloop()
     {
         this.renderer.render(this.mainScene, this.camera);
         requestAnimationFrame(() => this.runloop());
+    }
+
+    toggleSound()
+    {
+        for (let ptCloud of this.pointClouds)
+        {
+            ptCloud.toggleAudio();
+        }
     }
 
     resizeRendererToDisplaySize()

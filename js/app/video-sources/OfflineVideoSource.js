@@ -10,12 +10,17 @@ class OfflineVideoSource
         this.videoTag.playsinline = true;
         this.videoTag.setAttribute('playsinline', '');
         this.isVideoLoaded = false;
-
+        this.maxNumPoints = 720 * 960;
+        this.lastVideoSize = {width: 0, height: 0};
         this.onVideoChange = () => {};
 
+        let self = this;
+
         this.videoTag.onloadeddata = (e) => {
-            this.isVideoLoaded = true;
-            this.onVideoChange();
+            self.isVideoLoaded = true;
+            self.lastVideoSize.width = self.videoTag.videoWidth;
+            self.lastVideoSize.height = self.videoTag.videoHeight;
+            self.onVideoChange();
         };
     }
 
@@ -26,6 +31,7 @@ class OfflineVideoSource
         let dataURLReader = new FileReader();
         dataURLReader.onload = e => {
             self.videoTag.src = e.target.result;
+            self.maxNumPoints = self.videoTag.videoWidth * self.videoTag.videoHeight / 4;
         };
         dataURLReader.readAsDataURL(videoFile);
 
@@ -50,7 +56,14 @@ class OfflineVideoSource
     {
         if ( this.videoTag.paused ) this.videoTag.play();
         else this.videoTag.pause();
+    }
 
-        this.videoTag.muted = false;
+    toggleAudio()
+    {
+        this.videoTag.muted = !this.videoTag.muted;
+    }
+
+    getVideoSize() {
+        return {width: this.lastVideoSize.width / 2, height: this.lastVideoSize.height};
     }
 }
