@@ -5,6 +5,7 @@ function getPointCloudShaderMaterial()
         
         varying float vVertexIdx;
         varying vec2 vPtPos;
+        varying float vShouldDiscard;
         
         uniform ivec2 texSize;
         uniform sampler2D texImg;
@@ -63,12 +64,15 @@ function getPointCloudShaderMaterial()
 
         void main()
         {
+            vShouldDiscard = 0.0;
+            
             ivec2 frameSize = ivec2(texSize.x / 2, texSize.y);
             int vertIdx = int(vertexIdx);
       
             int actualNumPts = frameSize.x * frameSize.y;
             if ( vertIdx >= actualNumPts )
             {
+                vShouldDiscard = 1.0;
                 gl_Position = vec4(0.0);
                 return;
             }
@@ -79,6 +83,7 @@ function getPointCloudShaderMaterial()
             
             if ( shouldDiscard( pt ) )
             {
+                vShouldDiscard = 1.0;
                 gl_Position = vec4(0.0);
                 return;
             }
@@ -103,6 +108,7 @@ function getPointCloudShaderMaterial()
     const fragShaderSrc = `
         varying float vVertexIdx;
         varying vec2 vPtPos;
+        varying float vShouldDiscard;
 
         uniform ivec2 texSize;
         uniform sampler2D texImg;
@@ -114,7 +120,7 @@ function getPointCloudShaderMaterial()
             
             int vertIdx = int(vVertexIdx);
             int actualNumPts = frameSize.x * frameSize.y;
-            if ( vertIdx >= actualNumPts )
+            if ( vShouldDiscard != 0.0 || vertIdx >= actualNumPts )
             {
                 discard;
             }
