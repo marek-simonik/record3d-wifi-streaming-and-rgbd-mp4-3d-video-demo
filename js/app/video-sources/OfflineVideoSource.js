@@ -39,7 +39,7 @@ class OfflineVideoSource
         binaryMetadataReader.onload = e => {
             let fileContents = e.target.result;
             let meta = fileContents.substr(fileContents.lastIndexOf('{"intrinsic'));
-            meta = meta.substr(0, meta.length-1);
+            meta = meta.split(']}')[0] + ']}';
             let metadata = JSON.parse(meta);
             self.intrMat.elements = metadata['intrinsicMatrix'];
             self.intrMat.transpose();
