@@ -19,20 +19,14 @@ class WiFiStreamedVideoSource
         this.peerConnection = null;
         this.signalingClient = null;
 
+        let self = this;
         this.videoTag.onloadeddata = (e) => {
-            this.onVideoChange()
+            self.updateVideoResolution();
+            self.onVideoChange();
         };
 
-        let self = this;
         this.videoTag.onprogress = (e) => {
-            if ( self.videoTag.videoWidth != self.lastVideoSize.width || self.videoTag.videoHeight != self.lastVideoSize.height )
-            {
-                getMetadata(this.peerAddress)
-                    .then(metadata => self.processMetadata(metadata));
-            }
-
-            self.lastVideoSize.width = self.videoTag.videoWidth;
-            self.lastVideoSize.height = self.videoTag.videoHeight;
+            self.updateVideoResolution();
         };
     }
 
@@ -71,6 +65,17 @@ class WiFiStreamedVideoSource
                     .then(() => self.peerConnection.createAnswer())
                     .then(sdp => self.peerConnection.setLocalDescription(sdp));
             });
+    }
+
+    updateVideoResolution() {
+        if ( this.videoTag.videoWidth != this.lastVideoSize.width || this.videoTag.videoHeight != this.lastVideoSize.height )
+        {
+            getMetadata(this.peerAddress)
+                .then(metadata => this.processMetadata(metadata));
+        }
+
+        this.lastVideoSize.width = this.videoTag.videoWidth;
+        this.lastVideoSize.height = this.videoTag.videoHeight;
     }
 
     getVideoSize() {
@@ -123,5 +128,3 @@ class WiFiStreamedVideoSource
         this.onVideoChange();
     }
 }
-
-
