@@ -28,6 +28,7 @@
     <script src="js/app/video-sources/SignalingClient.js"></script>
     <script src="js/app/video-sources/OfflineVideoSource.js"></script>
     <script src="js/app/video-sources/WiFiStreamedVideoSource.js"></script>
+    <script src="js/app/video-sources/UrlVideoSource.js"></script>
     <script src="js/app/pointcloud-material.js"></script>
     <script src="js/app/Record3DScene.js"></script>
     <script src="js/app/Record3DVideo.js"></script>
@@ -51,7 +52,7 @@
                 <input type="file" class="form-control" id="input-mp4-file">
             </div>
             <small class="form-text text-muted">
-                Want to see an example? You can download <a href="https://mega.nz/file/0mg0XQSC#K0XS1GoqV-qRnJ2VFwVF7UbeVakCmc74kD6xpn_Bcek" target="_blank">this sample RGBD mp4 video</a> and drop it here.
+                Want to see an example? You can download <a href="https://mega.nz/file/0mg0XQSC#K0XS1GoqV-qRnJ2VFwVF7UbeVakCmc74kD6xpn_Bcek" target="_blank">this sample RGBD mp4 video</a> and drop it here or click directy here <a href="#demo" id="input-mp4-demo">demo</a>.
             </small>
         </form>
         </p>
@@ -68,16 +69,22 @@
     offlinePlaybackForm.onchange = (e) => {
         e.preventDefault();
         let mp4File = document.getElementById('input-mp4-file').files[0];
-        onOfflineVideoPassed(mp4File);
+        onVideoPassed(mp4File);
     };
 
     offlinePlaybackForm.ondrop = (e) => {
         e.preventDefault();
         let mp4File = e.dataTransfer.files[0];
-        onOfflineVideoPassed(mp4File);
+        onVideoPassed(mp4File);
     };
 
-    function onOfflineVideoPassed(mp4File) {
+    // Setup url video
+    const demoInput = document.getElementById('input-mp4-demo')
+    const URL_DEMO_VIDEO_GOAT = 'record3d_goat.mp4'
+    demoInput.onclick = e => onVideoPassed(URL_DEMO_VIDEO_GOAT, false)
+    if(document.location.hash === "#demo") setTimeout(() => onVideoPassed(URL_DEMO_VIDEO_GOAT, false)) //after the js loads
+
+    function onVideoPassed(mp4, isOffline = true) {
         document.getElementById('landing-page').remove();
 
         // The scene tag, specifies requirement of best tracking method
@@ -98,9 +105,10 @@
         document.body.appendChild(elScene);
 
         // Setup a Wi-Fi streamed video
-        let offlineVideoSource = new OfflineVideoSource();
-        offlineVideoSource.load(mp4File);
-        let offlineVideo = new Record3DVideo(offlineVideoSource);
+        let videoSource = isOffline ? new OfflineVideoSource() : new UrlVideoSource()
+        videoSource.load(mp4);
+
+        let offlineVideo = new Record3DVideo(videoSource);
         let ptCloudObj = offlineVideo.videoObject;
         elNull.object3D.add(ptCloudObj);
 
