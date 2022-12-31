@@ -1,4 +1,4 @@
-class Record3DSignalingClient {
+export class Record3DSignalingClient {
     constructor(serverURL) {
         let self = this;
         self.serverURL = serverURL;

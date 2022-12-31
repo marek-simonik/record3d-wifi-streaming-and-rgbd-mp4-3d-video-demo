@@ -69,20 +69,26 @@
         </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js "></script>
-    <script src="js/three.min.js"></script>
-    <script src="js/orbit-controls.js"></script>
-    <script src="js/camera-controls.js"></script>
 
-    <script src="js/app/video-sources/SignalingClient.js"></script>
-    <script src="js/app/video-sources/OfflineVideoSource.js"></script>
-    <script src="js/app/video-sources/WiFiStreamedVideoSource.js"></script>
-    <script src="js/app/video-sources/UrlVideoSource.js"></script>
-    <script src="js/app/pointcloud-material.js"></script>
-    <script src="js/app/Record3DScene.js"></script>
-    <script src="js/app/Record3DVideo.js"></script>
+    <!-- Import maps polyfill -->
+    <!-- Remove this when import maps will be widely supported -->
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three/build/three.module.js",
+                "three/": "https://unpkg.com/three/"
+            }
+        }
+    </script>
 
-    <script>
+    <script type="module">
+        import {UrlVideoSource} from "./js/app/video-sources/UrlVideoSource.js"
+        import {Record3DVideo} from "./js/app/Record3DVideo.js"
+        import {Record3DScene} from "./js/app/Record3DScene.js"
+        import {OfflineVideoSource} from "./js/app/video-sources/OfflineVideoSource.js"
+
+
         // Setup Wi-Fi Streaming
         let streamingForm = document.getElementById('form-start-streaming');
         streamingForm.onsubmit = (e) => {

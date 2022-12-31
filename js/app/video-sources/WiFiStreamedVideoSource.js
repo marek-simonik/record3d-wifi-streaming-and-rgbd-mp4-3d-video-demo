@@ -1,4 +1,6 @@
-class WiFiStreamedVideoSource
+import * as THREE from 'three'
+
+export class WiFiStreamedVideoSource
 {
     constructor(deviceAddress)
     {

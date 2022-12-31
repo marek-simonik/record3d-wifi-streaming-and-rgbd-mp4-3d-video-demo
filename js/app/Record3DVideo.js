@@ -1,10 +1,13 @@
-const Record3DVideoRenderingMode = Object.freeze({
+import * as THREE from 'three'
+import {getPointCloudShaderMaterial} from "./pointcloud-material.js";
+
+export const Record3DVideoRenderingMode = Object.freeze({
     POINTS: Symbol("points"),
     MESH: Symbol("mesh"),
 });
 
 
-class Record3DVideo
+export class Record3DVideo
 {
     constructor(videoSource)
     {
@@ -41,7 +44,7 @@ class Record3DVideo
         this.videoTexture = new THREE.VideoTexture( videoSource.videoTag );
         this.videoTexture.minFilter = THREE.LinearFilter;
         this.videoTexture.magFilter = THREE.LinearFilter;
-        this.videoTexture.format = THREE.RGBFormat;
+        this.videoTexture.format = THREE.RGBAFormat;
 
         videoSource.videoTag.play();
 
