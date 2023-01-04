@@ -9,6 +9,7 @@ class UrlVideoSource
         this.videoTag.loop = true;
         this.videoTag.playsinline = true;
         this.videoTag.setAttribute('playsinline', '');
+        this.videoTag.crossOrigin = "";
         this.isVideoLoaded = false;
         this.maxNumPoints = 720 * 960;
         this.lastVideoSize = {width: 0, height: 0};
