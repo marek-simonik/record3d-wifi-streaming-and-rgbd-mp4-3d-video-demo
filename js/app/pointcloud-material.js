@@ -1,4 +1,6 @@
-function getPointCloudShaderMaterial()
+import * as THREE from 'three'
+
+export function getPointCloudShaderMaterial()
 {
     const vertShaderSrc = `
         attribute float vertexIdx;

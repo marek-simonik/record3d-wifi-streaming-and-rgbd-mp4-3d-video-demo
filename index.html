@@ -52,10 +52,16 @@
                         <input type="file" class="form-control" id="input-mp4-file">
                     </div>
                     <small class="form-text text-muted">
-                        Want to see an example? You can download <a href="https://mega.nz/file/0mg0XQSC#K0XS1GoqV-qRnJ2VFwVF7UbeVakCmc74kD6xpn_Bcek" target="_blank">this sample RGBD mp4 video</a> and drop it here.
+                        Want to see an example? You can download <a href="record3d_goat.mp4" target="_blank">this sample RGBD mp4 video</a> and drop it here.
                     </small>
                 </form>
             </p>
+
+            <p class="lead" style="font-size: 2.25rem;">
+                <strong>OR</strong>
+            </p>
+
+            <a id="input-mp4-demo" href="#demo">Load goat example</a>
         </main>
 
         <footer class="mt-auto text-white-50">
@@ -63,19 +69,26 @@
         </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js "></script>
-    <script src="js/three.min.js"></script>
-    <script src="js/orbit-controls.js"></script>
-    <script src="js/camera-controls.js"></script>
 
-    <script src="js/app/video-sources/SignalingClient.js"></script>
-    <script src="js/app/video-sources/OfflineVideoSource.js"></script>
-    <script src="js/app/video-sources/WiFiStreamedVideoSource.js"></script>
-    <script src="js/app/pointcloud-material.js"></script>
-    <script src="js/app/Record3DScene.js"></script>
-    <script src="js/app/Record3DVideo.js"></script>
+    <!-- Import maps polyfill -->
+    <!-- Remove this when import maps will be widely supported -->
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three/build/three.module.js",
+                "three/": "https://unpkg.com/three/"
+            }
+        }
+    </script>
 
-    <script>
+    <script type="module">
+        import {UrlVideoSource} from "./js/app/video-sources/UrlVideoSource.js"
+        import {Record3DVideo} from "./js/app/Record3DVideo.js"
+        import {Record3DScene} from "./js/app/Record3DScene.js"
+        import {OfflineVideoSource} from "./js/app/video-sources/OfflineVideoSource.js"
+
+
         // Setup Wi-Fi Streaming
         let streamingForm = document.getElementById('form-start-streaming');
         streamingForm.onsubmit = (e) => {
@@ -96,6 +109,23 @@
             scene.runloop();
             scene.addVideo(new Record3DVideo(wifiVideo));
         };
+
+        // Setup url video
+        const demoInput = document.getElementById('input-mp4-demo')
+        const URL_DEMO_VIDEO_GOAT = 'record3d_goat.mp4'
+        demoInput.onclick = e => onUrlVideoPassed(URL_DEMO_VIDEO_GOAT)
+        if(document.location.hash === "#demo") setTimeout(() => onUrlVideoPassed(URL_DEMO_VIDEO_GOAT)) //after the js loads
+
+        function onUrlVideoPassed(url) {
+            document.getElementById('landing-page').remove();
+            // Setup the scene
+            const httpVideo = new UrlVideoSource()
+            httpVideo.load(url)
+            const scene = new Record3DScene(60, 1e-3, 100);
+            scene.runloop();
+            scene.addVideo(new Record3DVideo(httpVideo));
+        }
+
 
         // Setup offline video loading
         let offlinePlaybackForm = document.getElementById('input-mp4-file');

@@ -1,4 +1,6 @@
-class OfflineVideoSource
+import * as THREE from 'three'
+
+export class OfflineVideoSource
 {
     constructor()
     {
