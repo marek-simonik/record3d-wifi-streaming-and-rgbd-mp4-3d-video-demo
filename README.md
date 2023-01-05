@@ -24,4 +24,3 @@ Here you can see how to replay exported RGBD mp4 files in 3D:
 
 - `git clone git@github.com:marek-simonik/record3d-wifi-streaming-and-rgbd-mp4-3d-video-demo.git`
 - `npx serve` or `npx ssl-serve --ssl` if https is needed
-- This is no build system, thanks to es6
