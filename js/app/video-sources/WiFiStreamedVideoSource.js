@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import {getMetadata, Record3DSignalingClient} from "./SignalingClient.js";
 
 export class WiFiStreamedVideoSource
 {

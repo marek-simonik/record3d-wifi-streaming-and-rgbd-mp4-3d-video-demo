@@ -2,6 +2,7 @@ import * as THREE from 'three'
 
 export function getPointCloudShaderMaterial()
 {
+    // language=shader
     const vertShaderSrc = `
         attribute float vertexIdx;
         
@@ -107,6 +108,7 @@ export function getPointCloudShaderMaterial()
         }
     `;
 
+    // language=shader
     const fragShaderSrc = `
         varying float vVertexIdx;
         varying vec2 vPtPos;
