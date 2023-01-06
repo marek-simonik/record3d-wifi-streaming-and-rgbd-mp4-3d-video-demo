@@ -1,4 +1,9 @@
-class Record3DScene
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js'
+import {Record3DVideoRenderingMode} from "./Record3DVideo.js"
+
+export class Record3DScene
 {
     constructor(fov, near, far)
     {
@@ -14,7 +19,7 @@ class Record3DScene
         this.camera.lookAt(new THREE.Vector3(0,0,0));
 
         // Camera control settings
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableZoom = true;
         this.controls.update();
 
@@ -49,7 +54,7 @@ class Record3DScene
                 }
             }
         };
-        let gui = new dat.gui.GUI();
+        let gui = new GUI();
         gui.add(this.options, 'modelScale').min(1).max(20).step(0.1)
             .onChange(() => {
                 for (let ptCloud of self.pointClouds)

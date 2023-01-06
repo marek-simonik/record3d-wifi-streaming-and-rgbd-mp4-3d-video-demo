@@ -1,4 +1,4 @@
-class Record3DSignalingClient {
+export class Record3DSignalingClient {
     constructor(serverURL) {
         let self = this;
         self.serverURL = serverURL;
@@ -30,7 +30,7 @@ class Record3DSignalingClient {
     }
 }
 
-function getMetadata(serverURL) {
+export function getMetadata(serverURL) {
     // Metadata contains the intrinsic matrix
     let metadataEndpoint = serverURL + '/metadata';
     return fetch(metadataEndpoint)
