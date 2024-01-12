@@ -30,23 +30,48 @@ export class OfflineVideoSource
     {
         let self = this;
 
-        let dataURLReader = new FileReader();
-        dataURLReader.onload = e => {
-            self.videoTag.src = e.target.result;
-            self.maxNumPoints = self.videoTag.videoWidth * self.videoTag.videoHeight / 4;
-        };
-        dataURLReader.readAsDataURL(videoFile);
+        self.videoTag.src = window.URL.createObjectURL(videoFile);
+        self.maxNumPoints = self.videoTag.videoWidth * self.videoTag.videoHeight / 4;
 
-        let binaryMetadataReader = new FileReader();
-        binaryMetadataReader.onload = e => {
-            let fileContents = e.target.result;
-            let meta = fileContents.substr(fileContents.lastIndexOf('{"intrinsic'));
-            meta = meta.substr(0, meta.length-1);
-            let metadata = JSON.parse(meta);
-            self.intrMat.elements = metadata['intrinsicMatrix'];
-            self.intrMat.transpose();
+        self.parseAndApplyVideoMetadata(videoFile);
+    }
+
+    parseAndApplyVideoMetadata(videoFile)
+    {
+        /**
+         *  Read chunks on incrementally greater length from the end of the file until we can find the intrinsic matrix.
+         */
+
+        let self = this;
+        let videoFileSize = videoFile.size;
+
+        let chunkSizeInBytes = 1000;
+        var numBytesToRead = 0;
+        let fileReader = new FileReader();
+
+        let readLargerChunk = () => {
+            numBytesToRead = Math.min(videoFileSize, numBytesToRead + chunkSizeInBytes);
+            let currBlob = videoFile.slice(-numBytesToRead); // Read `numBytesToRead` from the end of the mp4 file
+            fileReader.readAsText(currBlob);
         };
-        binaryMetadataReader.readAsBinaryString(videoFile);
+
+        fileReader.onload = e => {
+            let fileContents = e.target.result;
+
+            let idx = fileContents.lastIndexOf('{"intrinsic');
+            if ( idx < 0 ) {
+                readLargerChunk();
+            }
+            else
+            {
+                let metadataJsonString = fileContents.slice(idx, -1);
+                let metadata = JSON.parse(metadataJsonString);
+                self.intrMat.elements = metadata['intrinsicMatrix'];
+                self.intrMat.transpose();
+            }
+        };
+        
+        readLargerChunk();
     }
 
     updateIntrinsicMatrix(intrMat)
